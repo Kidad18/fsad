@@ -1,1 +1,65 @@
+AIM :
 
+To develop a basic Spring MVC application using annotation-based configuration, create a controller to handle user requests, and display employee details using MVC architecture without XML configuration.
+
+PROCEDURE :
+Create a Spring Boot project in Eclipse
+Add dependency: Spring Web (Spring MVC)
+Create a main class with @SpringBootApplication
+Create an Employee model class
+Create a Controller class using @Controller
+Use @GetMapping to handle requests
+Return employee details using MVC flow
+Run the application and test in browser
+
+Code:
+
+package com.example.mvc;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.ui.Model;
+
+// -------------------- MAIN --------------------
+@SpringBootApplication
+public class MvcApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(MvcApplication.class, args);
+    }
+}
+
+// -------------------- MODEL --------------------
+class Employee {
+    private int id;
+    private String name;
+
+    public Employee(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+}
+
+// -------------------- CONTROLLER --------------------
+@Controller
+class EmployeeController {
+
+    @GetMapping("/employee")
+    public String getEmployee(Model model) {
+
+        Employee emp = new Employee(101, "Ganesh");
+
+        model.addAttribute("emp", emp);
+
+        return "view"; // view name
+    }
+}
+
+RESULT
+
+Thus, a basic Spring MVC application was successfully developed using annotation-based configuration without XML. The controller handled user requests and displayed employee details through the MVC flow.
