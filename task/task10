@@ -1,1 +1,121 @@
+AIM :
 
+To build a Student CRUD application using Spring Boot, map the database table using JPA annotations like @Entity, @Id, @Table, and @Column, and perform Create, Read, Update, and Delete operations using a relational database.
+
+PROCEDURE :
+
+Create a Spring Boot project in Eclipse
+Add dependencies:
+Spring Web
+Spring Data JPA
+MySQL Driver (or any DB)
+Configure database in application.properties
+Create Student Entity class using JPA annotations
+Create Repository interface extending JpaRepository
+Create Controller class for CRUD operations
+Run the application
+Test APIs using browser/Postman
+
+Code:
+package com.example.student;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.persistence.*;
+import java.util.*;
+
+// -------------------- MAIN --------------------
+@SpringBootApplication
+public class StudentApplication {
+
+    public static void main(String[] args) {
+        SpringApplication.run(StudentApplication.class, args);
+    }
+}
+
+// -------------------- ENTITY --------------------
+@Entity
+@Table(name = "students")
+class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @Column(name = "name")
+    private String name;
+
+    @Column(name = "dept")
+    private String dept;
+
+    public Student() {}
+
+    public Student(String name, String dept) {
+        this.name = name;
+        this.dept = dept;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getDept() { return dept; }
+
+    public void setName(String name) { this.name = name; }
+    public void setDept(String dept) { this.dept = dept; }
+}
+
+// -------------------- REPOSITORY --------------------
+interface StudentRepository extends JpaRepository<Student, Integer> {}
+
+// -------------------- CONTROLLER --------------------
+@RestController
+@RequestMapping("/students")
+class StudentController {
+
+    private final StudentRepository repo;
+
+    public StudentController(StudentRepository repo) {
+        this.repo = repo;
+    }
+
+    // CREATE
+    @PostMapping
+    public Student addStudent(@RequestBody Student s) {
+        return repo.save(s);
+    }
+
+    // READ ALL
+    @GetMapping
+    public List<Student> getAll() {
+        return repo.findAll();
+    }
+
+    // READ BY ID
+    @GetMapping("/{id}")
+    public Student getById(@PathVariable int id) {
+        return repo.findById(id).orElse(null);
+    }
+
+    // UPDATE
+    @PutMapping("/{id}")
+    public Student update(@PathVariable int id, @RequestBody Student s) {
+        Student existing = repo.findById(id).orElse(null);
+        if (existing != null) {
+            existing.setName(s.getName());
+            existing.setDept(s.getDept());
+            return repo.save(existing);
+        }
+        return null;
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable int id) {
+        repo.deleteById(id);
+        return "Deleted Successfully";
+    }
+}
+RESULT
+
+Thus, a Student CRUD application was successfully developed using Spring Boot and JPA. Database mapping was achieved using annotations like @Entity, @Id, @Table, and @Column, and all CRUD operations were performed successfully using a relational database.
