@@ -15,4 +15,73 @@ Create a Service class annotated with @Component
 Use @Autowired to inject dependencies
 Configure applicationContext.xml for component scanning
 Use BeanFactory to load beans
-Run the main class and display employee data
+Run the main class and display employee data 
+
+Code:
+
+package demo;
+
+import org.springframework.beans.factory.BeanFactory;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Autowired;
+
+// -------------------- MODEL --------------------
+class Employee {
+    private int id;
+    private String name;
+
+    public Employee() {}
+
+    public Employee(int id, String name) {
+        this.id = id;
+        this.name = name;
+    }
+
+    public void display() {
+        System.out.println("ID: " + id + ", Name: " + name);
+    }
+}
+
+// -------------------- REPOSITORY --------------------
+@Component
+class EmployeeRepository {
+
+    public Employee getEmployee() {
+        return new Employee(101, "Ganesh");
+    }
+}
+
+// -------------------- SERVICE --------------------
+@Component
+class EmployeeService {
+
+    @Autowired
+    private EmployeeRepository repo;
+
+    public Employee fetchEmployee() {
+        return repo.getEmployee();
+    }
+}
+
+// -------------------- MAIN --------------------
+public class MainApp {
+
+    public static void main(String[] args) {
+
+        BeanFactory factory =
+                new ClassPathXmlApplicationContext("AppConfig.xml");
+
+        EmployeeService service =
+                factory.getBean(EmployeeService.class);
+
+        Employee emp = service.fetchEmployee();
+        emp.display();
+    }
+}
+
+RESULT
+
+Thus, a simple Employee Management module was successfully created using Spring Core.
+Inversion of Control (IoC) and Dependency Injection (DI) were demonstrated using @Component, and beans were managed using BeanFactory. Employee data was stored and retrieved successfully in memory.
+
