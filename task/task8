@@ -1,1 +1,18 @@
+AIM :
 
+To create a simple Employee Management module using Spring Core, demonstrating Inversion of Control (IoC) and Dependency Injection (DI) using annotations like @Component and @Autowired, and managing beans using BeanFactory to store employee data in memory.
+
+PROCEDURE :
+
+Create a Spring Core project in Eclipse
+Add required dependencies (spring-context)
+Create package structure:
+model
+service
+main
+Create an Employee class to store employee details
+Create a Service class annotated with @Component
+Use @Autowired to inject dependencies
+Configure applicationContext.xml for component scanning
+Use BeanFactory to load beans
+Run the main class and display employee data
