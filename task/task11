@@ -1,1 +1,114 @@
+AIM :
 
+To implement a Data Access Layer using Spring Data JPA, use JpaRepository and custom query methods to retrieve student records based on conditions like department and age, and perform sorting and pagination.
+
+PROCEDURE :
+
+Create a Spring Boot project in Eclipse
+Add dependencies:
+Spring Web
+Spring Data JPA
+MySQL Driver
+Configure database in application.properties
+Create Student Entity class
+Create Repository interface extending JpaRepository
+Define custom query methods for filtering
+Use Pageable and Sort for pagination and sorting
+Create a Controller class to access data
+Run and test using Postman/browser
+
+Code :
+package com.example.jpa;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.domain.*;
+import jakarta.persistence.*;
+import java.util.*;
+
+// -------------------- MAIN --------------------
+@SpringBootApplication
+public class JpaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(JpaApplication.class, args);
+    }
+}
+
+// -------------------- ENTITY --------------------
+@Entity
+@Table(name = "students")
+class Student {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    private String name;
+    private String dept;
+    private int age;
+
+    public Student() {}
+
+    public Student(String name, String dept, int age) {
+        this.name = name;
+        this.dept = dept;
+        this.age = age;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public String getDept() { return dept; }
+    public int getAge() { return age; }
+}
+
+// -------------------- REPOSITORY --------------------
+interface StudentRepository extends JpaRepository<Student, Integer> {
+
+    // Custom query methods
+    List<Student> findByDept(String dept);
+
+    List<Student> findByAgeGreaterThan(int age);
+}
+
+// -------------------- CONTROLLER --------------------
+@RestController
+@RequestMapping("/students")
+class StudentController {
+
+    private final StudentRepository repo;
+
+    public StudentController(StudentRepository repo) {
+        this.repo = repo;
+    }
+
+    // Filter by Department
+    @GetMapping("/dept/{dept}")
+    public List<Student> getByDept(@PathVariable String dept) {
+        return repo.findByDept(dept);
+    }
+
+    // Filter by Age
+    @GetMapping("/age/{age}")
+    public List<Student> getByAge(@PathVariable int age) {
+        return repo.findByAgeGreaterThan(age);
+    }
+
+    // Sorting
+    @GetMapping("/sort")
+    public List<Student> sortStudents() {
+        return repo.findAll(Sort.by(Sort.Direction.ASC, "name"));
+    }
+
+    // Pagination
+    @GetMapping("/page")
+    public Page<Student> getPage() {
+        Pageable pageable = PageRequest.of(0, 3);
+        return repo.findAll(pageable);
+    }
+}
+
+RESULT
+
+Thus, the Data Access Layer was successfully implemented using Spring Data JPA. Custom query methods were used to filter student records based on department and age, and sorting and pagination were achieved using Sort and Pageable.
