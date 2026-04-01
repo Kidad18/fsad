@@ -1,1 +1,158 @@
+AIM :
 
+To enhance a RESTful Product Management API by adding input validation using annotations and implementing global exception handling to return meaningful error responses.
+
+PROCEDURE :
+Create a Spring Boot project
+Add dependencies:
+Spring Web
+Spring Data JPA
+Validation (spring-boot-starter-validation)
+Create Product entity with validation annotations
+Use @Valid in controller to validate input
+Create a Global Exception Handler using @ControllerAdvice
+Handle:
+Validation errors
+Resource not found
+Return proper JSON error responses
+Run and test using Postman
+
+Code :
+
+package com.example.product;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.data.jpa.repository.JpaRepository;
+import jakarta.persistence.*;
+import java.util.*;
+
+import jakarta.validation.constraints.*;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.http.*;
+import org.springframework.web.bind.annotation.ControllerAdvice;
+
+// -------------------- MAIN --------------------
+@SpringBootApplication
+public class ProductApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(ProductApplication.class, args);
+    }
+}
+
+// -------------------- ENTITY --------------------
+@Entity
+@Table(name = "products")
+class Product {
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int id;
+
+    @NotBlank(message = "Name cannot be empty")
+    private String name;
+
+    @Positive(message = "Price must be greater than 0")
+    private double price;
+
+    public Product() {}
+
+    public Product(String name, double price) {
+        this.name = name;
+        this.price = price;
+    }
+
+    public int getId() { return id; }
+    public String getName() { return name; }
+    public double getPrice() { return price; }
+
+    public void setName(String name) { this.name = name; }
+    public void setPrice(double price) { this.price = price; }
+}
+
+// -------------------- REPOSITORY --------------------
+interface ProductRepository extends JpaRepository<Product, Integer> {}
+
+// -------------------- CONTROLLER --------------------
+@RestController
+@RequestMapping("/products")
+@Validated
+class ProductController {
+
+    private final ProductRepository repo;
+
+    public ProductController(ProductRepository repo) {
+        this.repo = repo;
+    }
+
+    // GET all
+    @GetMapping
+    public List<Product> getAll() {
+        return repo.findAll();
+    }
+
+    // GET by ID
+    @GetMapping("/{id}")
+    public Product getById(@PathVariable int id) {
+        return repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+    }
+
+    // POST
+    @PostMapping
+    public Product add(@Valid @RequestBody Product p) {
+        return repo.save(p);
+    }
+
+    // PUT
+    @PutMapping("/{id}")
+    public Product update(@PathVariable int id, @Valid @RequestBody Product p) {
+        Product existing = repo.findById(id)
+                .orElseThrow(() -> new RuntimeException("Product not found"));
+
+        existing.setName(p.getName());
+        existing.setPrice(p.getPrice());
+        return repo.save(existing);
+    }
+
+    // DELETE
+    @DeleteMapping("/{id}")
+    public String delete(@PathVariable int id) {
+        repo.deleteById(id);
+        return "Product Deleted";
+    }
+}
+
+// -------------------- GLOBAL EXCEPTION HANDLER --------------------
+@ControllerAdvice
+class GlobalExceptionHandler {
+
+    // Handle validation errors
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<Map<String, String>> handleValidation(MethodArgumentNotValidException ex) {
+
+        Map<String, String> errors = new HashMap<>();
+
+        ex.getBindingResult().getFieldErrors().forEach(error ->
+                errors.put(error.getField(), error.getDefaultMessage())
+        );
+
+        return new ResponseEntity<>(errors, HttpStatus.BAD_REQUEST);
+    }
+
+    // Handle general errors
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<Map<String, String>> handleRuntime(RuntimeException ex) {
+
+        Map<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+
+        return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
+    }
+}
+
+RESULT
+
+Thus, the RESTful Product Management API was successfully enhanced with input validation and global exception handling. Validation annotations ensured correct input data, and meaningful error responses were returned in JSON format for invalid requests.
